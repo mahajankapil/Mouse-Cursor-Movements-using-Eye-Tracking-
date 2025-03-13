@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Command Interface</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+    <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
+    <style>
+        body {
+            background-image: url("{{ url_for('static', filename='images/11.png') }}");
+            background-size: cover;
+            background-repeat: no-repeat;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row text-center" id="selectid" style="height: 100vh;">
+            <div class="col-4">
+            </div>
+            <div class="col-4 mt-3">
+                <div class="col-12">
+                    <select class="form-control" name="select" id="select">
+                        <option value="">Select Category</option>
+                        <option value="BlindPerson">Blind Person(Use Hand Gesture & Voice Command)</option>
+                        <option value="HandicappedPerson">Physically Handicapped Person(Use Eye & Voice)</option>
+                        <option value="HandicappedBlindPerson">Physically Handicapped and Blind Person(Use Voice Only)</option>
+                        <option value="AllFunctions">Eye Gesture + Voice + Hand Gesture</option>
+                    </select>
+                </div>
+                <div class="col-12 mt-3">
+                    <button type="button" class="btn btn-info" id="start" name="start">Start Action</button>
+                </div>
+            </div>
+            <div class="col-4">
+            </div>
+        </div>
+        <div class="row d-none justify-content-center text-center" id="formid" style="height: 100vh;">
+            <div class="mx-auto Eye" style="height: 100vh;">
+                <button type="button" id="run_another_script" class="btn btn-warning">Eye Controlled Mouse</button>
+            </div>
+            <div class="mx-auto Voice" style="height: 100vh;">
+                <button type="button" id="run_another_script1" class="btn btn-primary">Voice Command</button>
+            </div>
+            <div class="mx-auto Gesture" style="height: 100vh;">
+                <button type="button" id="run_another_script2" class="btn btn-success">Hand Gesture</button>
+            </div>
+        </div>
+        <div id="recognized_commands" style="position: fixed;
+        z-index: 1533;
+        top: 0;color:#f8ff02"></div>
+    </div>
+    <script>
+        $(document).ready(function() {
+            $('#run_another_script').click(function() {
+                $(this).prop('disabled', true);
+                $.ajax({
+                    url: '/run_another_script',
+                    method: 'POST',
+                    success: function(response) {
+                        if (response.success) {} else {}
+                    },
+                    error: function(xhr, status, error) {}
+                });
+            });
+            chkcnt=0;
+            $('#run_another_script1').click(function() {
+                if(chkcnt == 0){
+                    $('#recognized_commands').append('<br>Listening...');
+                }
+                chkcnt++;
+                $.ajax({
+                    url: '/run_another_script1',
+                    method: 'POST',
+                    success: function(response) {
+                        if (response.command) { // Check for the 'command' property
+                            $('#recognized_commands').append('<br>Recognized Command: ' + response.command);
+                            $("#run_another_script1").click();
+                            chkcnt=0;
+                        } else {
+                            $('#recognized_commands').append('<br>No command recognized.');
+                            $("#run_another_script1").click();
+                            chkcnt=0;
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Error:', error);
+                    }
+                });
+            });
+            $('#run_another_script2').click(function() {
+                $(this).prop('disabled', true);
+                $.ajax({
+                    url: '/run_another_script2',
+                    method: 'POST',
+                    success: function(response) {
+                        if (response.success) {} else {}
+                    },
+                    error: function(xhr, status, error) {}
+                });
+            });
+            $('#start').on('click', function() {
+                var selval = $("#select").val();
+                if (selval != '') {
+                    $("#selectid").addClass("d-none");
+                    $("#formid").removeClass("d-none");
+                    $("body").css('background-image', 'none');
+                    if (selval == "BlindPerson") {
+                        $(".Eye").addClass("d-none");
+                        $(".Gesture").addClass("col-6");
+                        $(".Voice").addClass("col-6");
+                        $(".Voice").css('background-image', "url(" + "{{ url_for('static', filename='images/22.jpg') }}" + ")");
+                        $(".Voice").css("background-repeat", "no-repeat");
+                        $(".Voice").css("background-size", "100% 100%");
+                        $(".Gesture").css('background-image', "url(" + "{{ url_for('static', filename='images/Gesture.jpg') }}" + ")");
+                        $(".Gesture").css("background-repeat", "no-repeat");
+                        $(".Gesture").css("background-size", "100% 100%");
+                    } else if (selval == "HandicappedPerson") {
+                        $(".Gesture").addClass("d-none");
+                        $(".Eye").addClass("col-6");
+                        $(".Voice").addClass("col-6");
+                        $(".Voice").css('background-image', "url(" + "{{ url_for('static', filename='images/voice.jpg') }}" + ")");
+                        $(".Voice").css("background-repeat", "no-repeat");
+                        $(".Voice").css("background-size", "100% 100%");
+                        $(".Eye").css('background-image', "url(" + "{{ url_for('static', filename='images/Eye.jpg') }}" + ")");
+                        $(".Eye").css("background-repeat", "no-repeat");
+                        $(".Eye").css("background-size", "100% 100%");
+                    } else if (selval == "HandicappedBlindPerson") {
+                        $(".Eye").addClass("d-none");
+                        $(".Gesture").addClass("d-none");
+                        $(".Voice").addClass("col-12");
+                        $(".Voice").css('background-image', "url(" + "{{ url_for('static', filename='images/cover.jpg') }}" + ")");
+                        $(".Voice").css("background-repeat", "no-repeat");
+                        $(".Voice").css("background-size", "100% 100%");
+                    } else if (selval == "AllFunctions") {
+                        $(".Gesture").addClass("col-4");
+                        $(".Eye").addClass("col-4");
+                        $(".Voice").addClass("col-4");
+                        $(".Gesture").css('background-image', "url(" + "{{ url_for('static', filename='images/Gesture.jpg') }}" + ")");
+                        $(".Gesture").css("background-repeat", "no-repeat");
+                        $(".Gesture").css("background-size", "100% 100%");
+                        $(".Eye").css('background-image', "url(" + "{{ url_for('static', filename='images/Eye.jpg') }}" + ")");
+                        $(".Eye").css("background-repeat", "no-repeat");
+                        $(".Eye").css("background-size", "100% 100%");
+                        $(".Voice").css('background-image', "url(" + "{{ url_for('static', filename='images/cover.jpg') }}" + ")");
+                        $(".Voice").css("background-repeat", "no-repeat");
+                        $(".Voice").css("background-size", "100% 100%");
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>
